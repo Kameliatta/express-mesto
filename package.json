@@ -1,7 +1,7 @@
 {
   "name": "express-mesto",
   "version": "1.0.0",
-  "description": "`/routes` — папка с файлами роутера  \r `/controllers` — папка с файлами контроллеров пользователя и карточки   \r `/models` — папка с файлами описания схем пользователя и карточки",
+  "description": "подготовка бэкенда для приложения Место",
   "main": "index.js",
   "scripts": {
     "lint": "npx eslint .",
@@ -12,7 +12,7 @@
     "type": "git",
     "url": "git+https://github.com/Kameliatta/express-mesto.git"
   },
-  "author": "",
+  "author": "Prozorova Ksenia",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Kameliatta/express-mesto/issues"
