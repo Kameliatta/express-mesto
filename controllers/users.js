@@ -14,8 +14,7 @@ module.exports.getUsersId = (req, res) => {
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
         res.status(UNDEFINED_CODE).send({ message: 'Пользователь с указанным _id не найден' });
-      }
-      if (err.name === 'CastError') {
+      } else if (err.name === 'CastError') {
         res.status(ERROR_CODE).send({ message: 'Передан невалидный id' });
       } else {
         res.status(500).send({ message: 'Произошла ошибка' });
@@ -49,8 +48,7 @@ module.exports.updateProfile = (req, res) => {
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
         res.status(UNDEFINED_CODE).send({ message: 'Пользователь с указанным _id не найден' });
-      }
-      if (err.name === 'CastError') {
+      } else if (err.name === 'ValidationError') {
         res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные при обновлении профиля' });
       } else {
         res.status(500).send({ message: 'Произошла ошибка' });
@@ -70,8 +68,7 @@ module.exports.updateAvatar = (req, res) => {
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
         res.status(UNDEFINED_CODE).send({ message: 'Пользователь с указанным _id не найден' });
-      }
-      if (err.name === 'CastError') {
+      } else if (err.name === 'ValidationError') {
         res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные при обновлении аватара' });
       } else {
         res.status(500).send({ message: 'Произошла ошибка' });
