@@ -18,6 +18,7 @@ module.exports.getCard = (req, res, next) => {
 module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
     .then((card) => {
+      catchError(card);
       if (req.user._id === card.owner.toString()) {
         Card.findByIdAndRemove(req.params.cardId)
           .then(() => {

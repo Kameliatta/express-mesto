@@ -60,7 +60,7 @@ module.exports.createUser = (req, res, next) => {
       res.send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'MongoServerError' && err.code === 11000) {
+      if (err.code === 11000) {
         next(new ConflictError('Такой пользователь уже существует'));
       } else {
         next(err);
@@ -97,10 +97,18 @@ module.exports.updateAvatar = (req, res, next) => {
 };
 
 module.exports.login = (req, res, next) => {
-  const { email } = req.body;
+  const {
+    email,
+    password,
+    name,
+    about,
+    avatar,
+  } = req.body;
 
   return User.findOne({ email }).select('+password')
     .then((user) => {
+      bcrypt.compare(password, user.password);
+
       const token = jwt.sign(
         { _id: user._id },
         NODE_ENV === 'production' ? JWT_KEY : 'dev-secret',
@@ -112,13 +120,16 @@ module.exports.login = (req, res, next) => {
         sameSite: true,
       });
 
-      res.status(200).send({ user });
+      res.status(200).send({
+        data: {
+          name,
+          about,
+          avatar,
+          email,
+        },
+      });
     })
-    .catch((err) => {
-      if (err.name === 'TypeError') {
-        next(new UnauthorizedError('Неверный email или пароль'));
-      } else {
-        next(err);
-      }
+    .catch(() => {
+      next(new UnauthorizedError('Неверный email или пароль'));
     });
 };

@@ -13,7 +13,11 @@ router.get('/', getUsers);
 
 router.get('/me', getProfileInfo);
 
-router.get('/:userId', getUsersById);
+router.get('/:userId', celebrate({
+  params: Joi.object().keys({
+    userId: Joi.string().length(24).hex().required(),
+  }),
+}), getUsersById);
 
 router.patch('/me', celebrate({
   body: Joi.object().keys({
@@ -24,7 +28,7 @@ router.patch('/me', celebrate({
 
 router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string()
+    avatar: Joi.string().required()
       .pattern(
         /https?:\/\/(www\.)?[-\w@:%.+~#=]{1,256}\.[a-z0-9()]{1,6}\b([-\w()@:%.+~#=//?&]*)/,
       ),
