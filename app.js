@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const { errors, celebrate, Joi } = require('celebrate');
 const { createUser, login } = require('./controllers/users');
 const { auth } = require('./middlewares/auth');
+const { NotFoundError } = require('./utils/errors/not-found-err');
 
 require('dotenv').config();
 
@@ -39,8 +40,8 @@ app.post('/signup', celebrate({
 app.use('/users', auth, require('./routes/users'));
 app.use('/cards', auth, require('./routes/cards'));
 
-app.use((req, res) => {
-  res.status(404).send({ message: 'Роут не найден' });
+app.use(auth, (req, res, next) => {
+  next(new NotFoundError('Роут не найден'));
 });
 
 app.use(errors());
@@ -54,6 +55,8 @@ app.use((err, req, res, next) => {
         ? 'Произошла ошибка'
         : message,
     });
+
+  next();
 });
 
 mongoose.connect('mongodb://localhost:27017/mestodb');
