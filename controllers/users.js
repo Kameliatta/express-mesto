@@ -46,6 +46,7 @@ module.exports.createUser = (req, res, next) => {
     name,
     about,
     avatar,
+    email,
   } = req.body;
 
   bcrypt.hash(req.body.password, SOLT_ROUND)
@@ -56,8 +57,15 @@ module.exports.createUser = (req, res, next) => {
       about,
       avatar,
     }))
-    .then((user) => {
-      res.send({ data: user });
+    .then(() => {
+      res.send({
+        data: {
+          name,
+          about,
+          avatar,
+          email,
+        },
+      });
     })
     .catch((err) => {
       if (err.code === 11000) {
@@ -107,29 +115,36 @@ module.exports.login = (req, res, next) => {
 
   return User.findOne({ email }).select('+password')
     .then((user) => {
-      bcrypt.compare(password, user.password);
+      if (!user) {
+        throw new UnauthorizedError('Неверный email или пароль');
+      }
 
-      const token = jwt.sign(
-        { _id: user._id },
-        NODE_ENV === 'production' ? JWT_KEY : 'dev-secret',
-        { expiresIn: '7d' },
-      );
-      res.cookie('jwt', token, {
-        maxAge: 3600000 * 24 * 7,
-        httpOnly: true,
-        sameSite: true,
-      });
+      return bcrypt.compare(password, user.password)
+        .then((matched) => {
+          if (!matched) {
+            return Promise.reject(new UnauthorizedError('Неверный email или пароль'));
+          }
 
-      res.status(200).send({
-        data: {
-          name,
-          about,
-          avatar,
-          email,
-        },
-      });
+          const token = jwt.sign(
+            { _id: user._id },
+            NODE_ENV === 'production' ? JWT_KEY : 'dev-secret',
+            { expiresIn: '7d' },
+          );
+          res.cookie('jwt', token, {
+            maxAge: 3600000 * 24 * 7,
+            httpOnly: true,
+            sameSite: true,
+          });
+
+          return res.status(200).send({
+            data: {
+              name,
+              about,
+              avatar,
+              email,
+            },
+          });
+        });
     })
-    .catch(() => {
-      next(new UnauthorizedError('Неверный email или пароль'));
-    });
+    .catch(next);
 };
